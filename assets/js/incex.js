@@ -8,6 +8,9 @@
       '🤍', '💌', '❣️', '💟', '🌹', '🌸', '💍', '🎀', '✨'
     ];
 
+    // Ajustar escala del corazón según tamaño de pantalla
+    const heartScale = window.innerWidth <= 480 ? 8 : 12;
+
     // Iniciar posición inicial del osito (fuera de pantalla)
     let bearStartX = -80;
     let bearY = centerY - 30;
@@ -28,7 +31,10 @@
     function heartPoint(t, scale = 1) {
       const x = 16 * Math.pow(Math.sin(t), 3);
       const y = -(13 * Math.cos(t) - 5 * Math.cos(2 * t) - 2 * Math.cos(3 * t) - Math.cos(4 * t));
-      return { x: x * scale + centerX, y: y * scale + centerY };
+      return { 
+        x: x * scale + centerX, 
+        y: y * scale + centerY 
+      };
     }
 
     // Crear corazón fijo
@@ -53,72 +59,85 @@
       });
     }
 
-async function startAnimation() {
-  // Entrada del osito
-  await moveTo(centerX - 60, bearY);
+    async function startAnimation() {
 
-  // Formar corazón con corazones fijos
-  const fixedHearts = [];
-  for (let i = 0; i < 30; i++) {
-    const t = i * 0.3;
-    const point = heartPoint(t, 12); // Escala reducida para móviles
-    const heartPromise = createFixedHeart(point.x, point.y);
-    fixedHearts.push(heartPromise);
-    await new Promise(r => setTimeout(r, 600));
-  }
-
-  // Esperar que todos los corazones se creen y animen
-  const heartElements = await Promise.all(fixedHearts);
-
-  // Hacer que todos latan juntos
-  heartElements.forEach(heart => {
-    heart.style.animation = 'heartbeat 1.2s infinite';
-  });
-
-  // Mostrar mensaje final
-  document.getElementById("finalMessage").classList.add("show");
-
-  // Añadir luces brillantes
-  addSparkles();
-
-  // Mover osito a esquina inferior izquierda
+       // Mostrar mensaje de Kiara con animación
   setTimeout(() => {
-    bear.style.transition = "all 1.5s ease";
-    bear.style.left = `15px`;
-    bear.style.top = `${window.innerHeight - 80}px`;
-    bear.style.transform = "rotate(-15deg)";
-  }, 2000);
+    const kiaraMessage = document.getElementById("kiaraMessage");
+    kiaraMessage.style.opacity = '1';
+    kiaraMessage.style.animation = 'heartbeat 1.5s infinite';
+  }, 500);
+      // Entrada del osito
+      await moveTo(centerX - 60, bearY);
 
-  // MOSTRAR OSITOS ABRAZÁNDOSE (y que se queden permanentemente)
-  setTimeout(() => {
-    // Crear imagen de ositos abrazándose
-    const huggingBears = document.createElement('img');
-    huggingBears.className = 'hugging-bears';
-    huggingBears.src = 'assets/img/amorOsito.gif';
-    huggingBears.alt = 'Ositos abrazándose';
-    
-    // Posicionar debajo del corazón formado
-    huggingBears.style.left = `${centerX - 40}px`;
-    huggingBears.style.top = `${centerY + 200}px`;
-    
-    document.body.appendChild(huggingBears);
-    
-    // Animación de entrada suave
-    setTimeout(() => {
-      huggingBears.style.opacity = '1';
-      huggingBears.style.transform = 'translateY(0)';
-    }, 100);
+      // Formar corazón con corazones fijos
+      const fixedHearts = [];
+      for (let i = 0; i < 30; i++) {
+        const t = i * 0.3;
+        const point = heartPoint(t, heartScale); // Usamos la escala ajustada
+        const heartPromise = createFixedHeart(point.x, point.y);
+        fixedHearts.push(heartPromise);
+        await new Promise(r => setTimeout(r, 600));
+      }
 
-    // Mostrar fuegos artificiales y lluvia (sin quitar los ositos)
-    setTimeout(() => {
-      launchFireworks().then(() => {
-        startLoveRain();
+      // Esperar que todos los corazones se creen y animen
+      const heartElements = await Promise.all(fixedHearts);
+
+      // Hacer que todos latan juntos
+      heartElements.forEach(heart => {
+        heart.style.animation = 'heartbeat 1.2s infinite';
       });
-    }, 1000); // Pequeña espera después de que aparezcan los ositos
-  }, 2500);
-}
+
+      // Mostrar mensaje final
+      document.getElementById("finalMessage").classList.add("show");
+
+       // Mostrar mensaje de Kiara con retraso
+      setTimeout(() => {
+        document.getElementById("kiaraMessage").style.opacity = '1';
+      }, 500);
+ 
+      // Añadir luces brillantes
+      addSparkles();
+
+      // Mover osito a esquina inferior izquierda
+      setTimeout(() => {
+        bear.style.transition = "all 1.5s ease";
+        bear.style.left = `15px`;
+        bear.style.top = `${window.innerHeight - 80}px`;
+        bear.style.transform = "rotate(-15deg)";
+      }, 2000);
+
+      // MOSTRAR OSITOS ABRAZÁNDOSE (permanente)
+      setTimeout(() => {
+        const huggingBears = document.createElement('img');
+        huggingBears.className = 'hugging-bears';
+        huggingBears.src = 'assets/img/amorOsito.gif';
+        huggingBears.alt = 'Ositos abrazándose';
+        
+        // Posicionar debajo del corazón formado
+        const bearsTop = window.innerWidth <= 480 ? centerY + 150 : centerY + 200;
+        huggingBears.style.left = `${centerX - (window.innerWidth <= 480 ? 30 : 40)}px`;
+        huggingBears.style.top = `${bearsTop}px`;
+        
+        document.body.appendChild(huggingBears);
+        
+        // Animación de entrada suave
+        setTimeout(() => {
+          huggingBears.style.opacity = '1';
+          huggingBears.style.transform = 'translateY(0)';
+        }, 100);
+
+        // Mostrar fuegos artificiales y lluvia
+        setTimeout(() => {
+          launchFireworks().then(() => {
+            startLoveRain();
+          });
+        }, 1000);
+      }, 2500);
+    }
+
     function addSparkles() {
-      for (let i = 0; i < 20; i++) { // Menos sparkles en móvil
+      for (let i = 0; i < (window.innerWidth <= 480 ? 15 : 20); i++) {
         const sparkle = document.createElement('div');
         sparkle.className = 'sparkle';
         sparkle.style.left = `${Math.random() * window.innerWidth}px`;
@@ -152,13 +171,14 @@ async function startAnimation() {
     }
 
     function startLoveRain() {
-      // Menos emojis iniciales en móvil
-      for (let i = 0; i < 15; i++) {
-        setTimeout(createFallingEmoji, i * 400); // Más espaciados
+      const initialEmojis = window.innerWidth <= 480 ? 10 : 15;
+      const emojiDelay = window.innerWidth <= 480 ? 500 : 400;
+      
+      for (let i = 0; i < initialEmojis; i++) {
+        setTimeout(createFallingEmoji, i * emojiDelay);
       }
       
-      // Intervalo más lento
-      setInterval(createFallingEmoji, 300);
+      setInterval(createFallingEmoji, window.innerWidth <= 480 ? 400 : 300);
     }
 
     function launchFireworks() {
@@ -195,7 +215,10 @@ async function startAnimation() {
     }
 
     function createExplosion(x, y) {
-      for (let i = 0; i < 30; i++) { // Menos partículas
+      const particles = window.innerWidth <= 480 ? 20 : 30;
+      const radius = window.innerWidth <= 480 ? 60 + Math.random() * 80 : 80 + Math.random() * 120;
+      
+      for (let i = 0; i < particles; i++) {
         const particle = document.createElement('div');
         particle.className = 'explosion';
         particle.style.left = `${x}px`;
@@ -204,7 +227,6 @@ async function startAnimation() {
         document.body.appendChild(particle);
 
         const angle = Math.random() * 2 * Math.PI;
-        const radius = 80 + Math.random() * 120; // Radio menor
         const targetX = x + Math.cos(angle) * radius;
         const targetY = y + Math.sin(angle) * radius;
 
