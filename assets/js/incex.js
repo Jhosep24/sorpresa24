@@ -259,7 +259,7 @@
 
       // Reproducir música desde los 28 segundos
       setTimeout(() => {
-        bgMusic.currentTime = 28;
+        bgMusic.currentTime = 14;
         bgMusic.play().catch(e => console.log("Error al reproducir música:", e));
       }, 100);
 
